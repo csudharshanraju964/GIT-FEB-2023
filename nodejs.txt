@@ -1,0 +1,378 @@
+const {evaluateQueryString} = require("./evaluateQuery")
+const {getUserDetails} = require("./Users")
+
+const http = require("http")
+const server = http.createServer((req, resp) => {
+   const {method} = req 
+   if(method === 'GET') {
+    const {url} = req
+   const [endpoint, query] = url.split("?")
+   const {user_id} = evaluateQueryString(query)
+   const userDetails = getUserDetails(user_id)
+   console.log(userDetails) ;
+   resp.end(JSON.stringify(userDetails)) 
+   }
+   else {
+      resp.end("Invalid request")
+   }
+})
+
+server.listen(3000, () => {
+    console.log("Backend app is running on port 3000")
+})
+// to request a backend service 
+// the service should run somewhere 
+// you should know the address of the server to request it 
+
+// http://localhost:3000/
+
+/*
+
+
+Instagram 
+
+1)Profile screen (
+    {
+        image_url: 'profile_url',
+        posts: number;
+        followers: number,
+        following: number
+    }
+)
+// service 
+
+A service will take a request and sends response back to the client
+
+
+2) followers screen ( 
+    [
+        {
+            iam_following: true / false,
+            profile_url: '',
+            username: ''
+        },
+        {
+            iam_following: true / false,
+            profile_url: '',
+            username: ''
+        },
+        {
+            iam_following: true / false,
+            profile_url: '',
+            username: ''
+        }
+    ]
+
+)
+
+
+REST (representational state transfer)
+REST method
+
+GET method
+POST method
+PUT method 
+PATCH method
+DELETE method
+*/
+
+/*
+
+Ways of sending data from client to server : 
+  1) Query parameters
+    http://domain.com/enpoint?name=aravind&age=22
+  2) Path parameters 
+*/
+
+const express = require("express") 
+const app = express()
+const PORT = 8080 
+
+
+app.listen(PORT, () => {
+    console.log(`App is runing on ${PORT}`)
+})
+
+app.use(express.json())
+
+// will data in the query parameters
+// /users?length=20&name=dkkdkk
+app.get("/query" , (req, resp) => {
+    const userData = req.query
+    console.log(userData);
+    resp.json(userData)
+})
+
+// Will take data in path parameters 
+// /path/ABC@123/Aravind
+app.put("/path/:password/:username" , (req, resp) => {
+    const userData = req.params
+    console.log(userData);
+    // {password: 'ABC@1233' , username: 'Aravind' }
+    resp.json(userData) 
+})
+
+// will take data in  body
+app.post("/body", (req, resp) => {
+    const userData = req.body 
+    console.log(userData);
+    resp.json(userData) 
+})
+
+/*
+Ways to send data from client to server:
+1) Query parameters (In all REST methods)
+2) Path parameters (In All REST methods)
+3) body (All except GET) 
+*/
+
+(req,resp, next) => {
+    let data = '' ;
+    console.log(req.headers)
+    req.on('data' , (chunk) => {
+        data += chunk
+    })
+    req.on('end', () => {
+        req.body = JSON.parse(data)
+        next()
+    })
+}
+Middleware implementation to extract body data manually
+
+1) Database server(mongod)
+    i) test
+    ii) admin
+    iii) instagram
+        1) credentials (collection)
+        2) profileData (collections)
+    ....
+
+1) To list out all the databases (show dbs) 
+1.1) To delete a database (db.dropDatabase())
+2) To create a database (use new_db_name)
+3) To list out all the collections in a database (show collections) ;
+4) To create a new collection in a database (db.createCollection("collection_name"))
+
+
+1) To add data into a collection
+    db.collection_name.insertOne(object) 
+        {
+            username: 'Aravind_Samudrala',
+            password: 'abc@123'
+        }
+
+
+2) To insert many fields :
+    db.credentials.insertMany([ { name: 'Ranjith', password: 'Ranj@123'}, {name: 'Bhargavi', password: 'Bhar@123'}]);
+
+    db.profiledata.insertMany( [ { posts: 10, followers: 200, following: 300}, {posts: 20, followers: 132, following: 899}]);
+
+
+3) To extract data from a collection
+    db.collection_name.find() => this one will extract all the data inside a collections.
+
+    To extract specified properties from a collection 
+    we can pass second argument to find method telling which properties we want 
+
+
+     db.credentials.find({name: 'Bhargavi'} , {password: 0, name: 0})
+
+1) To add data into database
+  insertOne({})
+  insertMany([{}, {}, {}])
+
+2) To fetch data from database (querying database)
+    db.collection_name.find();
+    i) to fetch count use method `countDocuments()` on top of collection object 
+
+
+3)To update the data in the data in the collection/database 
+
+4) To delete the data in the database 
+
+
+Instagram: 
+
+Profie data view of all users 
+
+Create a database named as instagram 
+create a collection named as profile
+
+{
+    name: '',
+    posts: number,
+    followers: number,
+    following: number
+    address: {
+        city: '',
+        pincode: number,
+    }
+}
+
+
+{ 
+    city: 'Hyde'
+}
+
+
+1) Fetch data based on conditions 
+   $gt
+   $gte
+   $lt
+   $lte
+   $eq
+   $ne
+
+   i) Ftech all users who are having followers count greater than 100
+
+   2) Fetch all users whose name is 'aravind' or whose followers count is > 200
+
+   if(name === "aravind" || followers > 200) 
+
+2) Logical Operators in mongoDB
+    $or => or Operator
+    $and => and operator
+
+
+    db.profile.find({
+        $or: [
+            cond1 ,
+            cond2 ,
+            cond3 ....
+        ]
+    })
+    if(cond1 || cond2 || cond3 ....)
+
+
+   db.profile.find({
+    $and: [
+        cond1, 
+        cond2,
+        cond3 ....
+    ]
+   })
+
+   3) Fetch all users who are having followers count to be > 100 and following count > 200
+
+   db.profile.find({ $and: [ {followers: { $gt: 100} } , { following: { $gt: 200 } } ] });
+
+   4) To get the count of documents upon a query we use same like find method 
+    but find() method will return the list of data whereas count method will return the count of result list 
+
+
+    db.profile.find({name: 'Aravind' }) => fetches the document whose name is 'Aravind' 
+    db.profile.countDocuments({name: 'Aravind'}) => fetches the count of documents whose name is 'Aravind'
+
+
+
+3) Update data in the database 
+
+   updateOne(whichOneToUpdate, newObject)
+   updateMany()
+
+   The first argument of above two method should be a query object 
+
+   i) To fetch all the users whose name is 'Rachana' and located in 'Hyderabad'
+     if(name === 'Rachana' && city === 'Hyderabad' )
+
+
+   db.profile.updateOne({ $and: [ {name: 'Rachana' } , { "address.city" : "Hyderabad" } ]} , { $set: { posts: 25}})
+
+
+  To rename keys of documents 
+
+  db.profile.updateOne({ name: 'Sanket' }, { $rename: {username: 'name' , addres: 'address' ...} })
+
+
+
+  To rename and update some field at time 
+
+
+  db.profile.updateOne( { username: 'Sanket' }, { $rename: { username: 'name' } , $set: { posts: 1} })
+
+//JWT Authentication
+const express = require("express")
+const app = express()
+const PORT = 8080
+const jwt = require("jsonwebtoken")
+const { authorizeUser } = require("./auth")
+const privateKey = "ANDJS_SKKSJK282892_KSKKLWK"
+
+app.listen(PORT, () => {
+    console.log(`App is runing on ${PORT}`)
+})
+
+app.use(express.json())
+
+
+
+app.post("/login", (req, resp) => {
+    const userCredentials = req.body
+    const token = jwt.sign(userCredentials, privateKey, { expiresIn: 20 })
+    resp.json({ token })
+})
+
+
+const users = [
+    {
+        username: 'aravind',
+        password: '10xacademy',
+        posts: 2,
+        followers: 10,
+        following: 20
+    },
+    {
+        username: 'Rachana',
+        password: 'rach@123',
+        posts: 10,
+        followers: 100,
+        following: 200
+    }
+]
+
+app.post("/profile", authorizeUser, (req, resp) => {
+    const userData = req.user
+    let response = {}
+    users.map((user) => {
+        if (user.username === userData.username && user.password === userData.password) {
+            response = { posts: user.posts, followers: user.followers, following: user.following }
+        }
+    })
+    resp.json({ ...response, message: 'success' })
+})
+Auth.js
+const jwt = require("jsonwebtoken")
+const privateKey = "ANDJS_SKKSJK282892_KSKKLWK"
+
+const authorizeUser = (req, resp, next) => { 
+    const token = req.body.token 
+    jwt.verify(token , privateKey, (err, data) => {
+        if(err) {
+            resp.json({ message: 'Token expired'})
+        }
+        else{ 
+            req.user = data
+            next()
+        }
+    })
+}
+
+module.exports = {authorizeUser} 
+test.rest
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+    "username" : "aravind",
+    "password" : "10xacademy"
+}
+
+###
+
+POST http://localhost:8080/profile
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyYXZpbmQiLCJwYXNzd29yZCI6IjEweGFjYWRlbXkiLCJpYXQiOjE2NzU1ODQxMTMsImV4cCI6MTY3NTU4NDEzM30.GTgj57XHuNhngDJ7g8PGq2Og5EfWQgvWDDzM6A6KOMc"
+}
+
