@@ -1,0 +1,6 @@
+1.Call backs are not asynchronus by default.
+2.Diff b/w async,await and Promises
+     async&await                                                              Promises
+1.they are expensive                                          1.they are not expensive
+2.they will make non-blocking code to blocking                2.they are by default non-blocking
+3.they will kinf of make async code to synchronous code       3.they make code asynchronous
