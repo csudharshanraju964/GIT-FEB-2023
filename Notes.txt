@@ -3,4 +3,4 @@
      async&await                                                              Promises
 1.they are expensive                                          1.they are not expensive
 2.they will make non-blocking code to blocking                2.they are by default non-blocking
-3.they will kinf of make async code to synchronous code       3.they make code asynchronous
+3.they will kind of make async code to synchronous code       3.they make code asynchronous
